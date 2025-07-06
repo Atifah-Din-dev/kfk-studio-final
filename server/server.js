@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config({ path: './config.env' }); // Specify the path to config.env
 
 // Check for required environment variables
@@ -15,10 +16,16 @@ const app = express();
 //     origin: '*', // or limit to your frontend IP
 // }));
 app.use(cors({
-    origin: 'http://192.168.9.143:3000', // Replace with your React app's address
+    // origin: 'http://localhost:3000', // Localhost for development
+    origin: 'http://192.168.87.143:3000', // UTM IP address
+    // origin: 'http://192.168.50.212:3000', // Rumah Nad IP address
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
 }));
 app.use(express.json());
+
+// Serve uploaded profile images statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Root route
 app.get("/", (req, res) => {

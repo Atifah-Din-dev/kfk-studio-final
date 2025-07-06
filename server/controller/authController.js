@@ -252,3 +252,22 @@ exports.changePassword = async (req, res) => {
         res.status(500).json({ msg: "Server error" });
     }
 };
+
+exports.uploadProfileImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ msg: "No file uploaded" });
+        }
+        // Save the relative path to the profileImage field
+        const imagePath = `/uploads/profile-images/${req.file.filename}`;
+        const customer = await Customer.findByIdAndUpdate(
+            req.customer.id,
+            { $set: { profileImage: imagePath } },
+            { new: true }
+        ).select('-password');
+        res.json({ msg: "Profile image updated", profileImage: imagePath, customer });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: "Server error" });
+    }
+};
