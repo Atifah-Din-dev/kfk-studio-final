@@ -1,0 +1,244 @@
+.booking-form {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.booking-form-header {
+    padding: 1.25rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.booking-form-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.close-form-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-form-btn:hover {
+    color: #333;
+}
+
+.booking-form-body {
+    padding: 1.5rem;
+}
+
+.booking-error {
+    background-color: #ffebee;
+    color: #d32f2f;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.form-group input[type="date"],
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    color: #333;
+}
+
+.form-group input[type="date"]:focus,
+.form-group select:focus {
+    border-color: #4a6cf7;
+    outline: none;
+}
+
+.form-group select:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.loading-slots {
+    padding: 0.75rem;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #666;
+    text-align: center;
+}
+
+.options-list {
+    margin-top: 0.5rem;
+}
+
+.option-item {
+    border: 1px solid #eee;
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.option-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.option-checkbox input {
+    margin-right: 0.75rem;
+}
+
+.option-name {
+    flex: 1;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.option-price {
+    color: #4a6cf7;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.option-description {
+    margin: 0.5rem 0 0 1.75rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.booking-summary {
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.booking-summary h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.summary-row.total {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #ddd;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.booking-form-footer {
+    padding: 1.25rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+/* Button styles */
+.booking-form-header .close-form-btn,
+.booking-form-footer button {
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.booking-form-header .close-form-btn {
+    background: transparent;
+    border: none;
+    color: #000;
+    font-size: 24px;
+    padding: 0;
+}
+
+.booking-form-header .close-form-btn:hover {
+    color: #333;
+}
+
+.booking-form-footer .cancel-btn {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #000000;
+}
+
+.booking-form-footer .cancel-btn:hover {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.booking-form-footer .add-to-cart-btn {
+    background-color: #000000;
+    color: #ffffff;
+    border: 1px solid #000000;
+}
+
+.booking-form-footer .add-to-cart-btn:hover {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.booking-form-footer .add-to-cart-btn:disabled {
+    background-color: #cccccc;
+    border-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .booking-form {
+        max-width: 100%;
+        border-radius: 0;
+    }
+
+    .booking-form-header h2 {
+        font-size: 1.3rem;
+    }
+
+    .booking-form-body,
+    .booking-form-footer {
+        padding: 1rem;
+    }
+}
