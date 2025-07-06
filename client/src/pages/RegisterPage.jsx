@@ -15,7 +15,7 @@ export default function RegisterPage() {
         try {
             setError(""); // Clear any previous errors
             console.log('Attempting registration with:', formData);
-            // const response = await axios.post('http://localhost:5000/api', formData); // My computer's localhost>
+            // const response = await axios.post('http://localhost:5000/api/auth/register', formData); // My computer's localhost
             const response = await axios.post('http://192.168.3.143:5000/api/auth/register', formData); // UTM IP address
             // const response = await axios.post('http://192.168.50.212:5000/api/auth/register', formData); // Rumah Nad IP address
             console.log('Registration successful:', response.data);

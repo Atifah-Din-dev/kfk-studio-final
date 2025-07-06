@@ -17,7 +17,7 @@ const app = express();
 // }));
 app.use(cors({
     // origin: 'http://localhost:3000', // Localhost for development
-    origin: 'http://192.168.87.143:3000', // UTM IP address
+    origin: 'http://192.168.3.143:3000', // UTM IP address
     // origin: 'http://192.168.50.212:3000', // Rumah Nad IP address
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
