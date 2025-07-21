@@ -17,7 +17,7 @@ const app = express();
 // }));
 app.use(cors({
     // origin: 'http://localhost:3000', // Localhost for development
-    origin: 'http://192.168.3.143:3000', // UTM IP address
+    origin: 'http://10.215.107.23:3000', // UTM IP address
     // origin: 'http://192.168.50.212:3000', // Rumah Nad IP address
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
@@ -27,19 +27,32 @@ app.use(express.json());
 // Serve uploaded profile images statically
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Add request logging middleware
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path} - Body:`, req.body);
+    next();
+});
+
 // Root route
 app.get("/", (req, res) => {
     res.send("KFK Studio API is running. Use /api/auth and /api/bookings endpoints.");
 });
 
 // Routes
+console.log("Setting up routes...");
 app.use("/api/auth", require("./routes/auth"));
+console.log("Auth routes loaded");
+app.use("/api/manager", require("./routes/manager"));
+console.log("Manager routes loaded");
 app.use("/api/bookings", require("./routes/booking"));
+console.log("Booking routes loaded");
 app.use("/api/services", require("./routes/services"));
+console.log("Services routes loaded");
 
 // Ensure proper error handling for unhandled routes
 app.use((req, res, next) => {
-    res.status(404).json({ msg: "Route not found" });
+    console.log(`404 - Route not found: ${req.method} ${req.path}`);
+    res.status(404).json({ msg: "Route not found", path: req.path, method: req.method });
 });
 
 // Global error handler

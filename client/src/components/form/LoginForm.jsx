@@ -1,3 +1,6 @@
+// LoginForm.jsx
+// Form component for customer login, handling input validation and submission
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
@@ -71,6 +74,10 @@ const LoginForm = ({ onSubmit, error }) => {
             <div className="signup-link">
                 <span>Don't have an account? </span>
                 <Link to="/register">Sign up</Link>
+            </div>
+            <div className="signup-link">
+                <span>Are you a manager? </span>
+                <Link to="/manager-login">Sign in here</Link>
             </div>
         </form>
     );

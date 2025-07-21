@@ -1,46 +1,53 @@
+// server/controller/bookingController.js
+// Controller for handling booking operations, including creating, updating, and retrieving bookings
+
 const BookingList = require("../model/BookingLists");
 const BookingProgress = require("../model/BookingProgress");
 const BookingHistory = require("../model/BookingHistory");
 const ProductService = require("../model/ProductServices");
 const Customer = require("../model/Customer");
 
-// Create a new booking
 exports.createBooking = async (req, res) => {
     try {
-        const { service, serviceDetails, date, time, notes } = req.body;
+        const { service, serviceDetails, date, time, notes, price, totalPrice, orderId, customerInfo } = req.body;
         const CustomerId = req.Customer.id;
 
-        // Validate the service
         const serviceData = await ProductService.findById(service);
         if (!serviceData) {
             return res.status(404).json({ msg: "Service not found" });
         }
 
-        // Calculate price based on selected options
-        let totalPrice = serviceData.price;
+        let finalPrice = price || serviceData.price;
         if (serviceDetails && serviceDetails.options) {
             for (const optionId of serviceDetails.options) {
                 const option = serviceData.options.find(opt => opt._id.toString() === optionId);
                 if (option) {
-                    totalPrice += option.additionalPrice;
+                    finalPrice += option.additionalPrice;
                 }
             }
         }
 
-        // Create the booking
         const newBooking = new BookingList({
             Customer: CustomerId,
             service: serviceData._id,
-            serviceDetails,
+            serviceDetails: {
+                ...serviceDetails,
+                name: serviceData.name,
+                category: serviceData.category,
+                description: serviceData.description,
+                image: serviceData.image
+            },
             date,
             time,
-            price: totalPrice,
-            notes
+            price: finalPrice,
+            totalPrice: totalPrice || finalPrice,
+            orderId,
+            notes,
+            customerInfo
         });
 
         const booking = await newBooking.save();
 
-        // Create booking progress
         const bookingProgress = new BookingProgress({
             booking: booking._id,
             steps: [
@@ -71,12 +78,11 @@ exports.createBooking = async (req, res) => {
                     status: "pending"
                 }
             ],
-            currentStep: 1 // Confirmation step is active
+            currentStep: 1
         });
 
         await bookingProgress.save();
 
-        // Record in history
         const bookingHistory = new BookingHistory({
             booking: booking._id,
             action: "create",
@@ -87,9 +93,14 @@ exports.createBooking = async (req, res) => {
 
         await bookingHistory.save();
 
+        const populatedBooking = {
+            ...booking.toObject(),
+            serviceDetails: serviceData
+        };
+
         res.status(201).json({
             msg: "Booking created successfully",
-            booking,
+            booking: populatedBooking,
             progress: bookingProgress
         });
 
@@ -99,7 +110,6 @@ exports.createBooking = async (req, res) => {
     }
 };
 
-// Get all bookings for current Customer
 exports.getCustomerBookings = async (req, res) => {
     try {
         const CustomerId = req.Customer.id;
@@ -107,14 +117,23 @@ exports.getCustomerBookings = async (req, res) => {
         const bookings = await BookingList.find({ Customer: CustomerId })
             .sort({ createdAt: -1 });
 
-        res.json(bookings);
+        const populatedBookings = await Promise.all(
+            bookings.map(async (booking) => {
+                const serviceData = await ProductService.findById(booking.service);
+                return {
+                    ...booking.toObject(),
+                    serviceDetails: serviceData
+                };
+            })
+        );
+
+        res.json(populatedBookings);
     } catch (err) {
         console.error(err);
         res.status(500).json({ msg: "Server error" });
     }
 };
 
-// Get a single booking by id
 exports.getBookingById = async (req, res) => {
     try {
         const CustomerId = req.Customer.id;
@@ -126,21 +145,24 @@ exports.getBookingById = async (req, res) => {
             return res.status(404).json({ msg: "Booking not found" });
         }
 
-        // Make sure Customer owns the booking (unless admin)
         const Customer = await Customer.findById(CustomerId);
         if (booking.Customer.toString() !== CustomerId && Customer.role !== "manager") {
             return res.status(403).json({ msg: "Not authorized" });
         }
 
-        // Get booking progress
         const progress = await BookingProgress.findOne({ booking: bookingId });
 
-        // Get booking history
         const history = await BookingHistory.find({ booking: bookingId })
             .sort({ timestamp: -1 });
 
+        const serviceData = await ProductService.findById(booking.service);
+        const populatedBooking = {
+            ...booking.toObject(),
+            serviceDetails: serviceData
+        };
+
         res.json({
-            booking,
+            booking: populatedBooking,
             progress,
             history
         });
@@ -150,18 +172,11 @@ exports.getBookingById = async (req, res) => {
     }
 };
 
-// Update booking status (admin/manager only)
 exports.updateBookingStatus = async (req, res) => {
     try {
-        const CustomerId = req.Customer.id;
+        const userId = req.manager?.id || req.Customer?.id;
         const { status } = req.body;
         const bookingId = req.params.id;
-
-        // Verify Customer is a manager
-        const Customer = await Customer.findById(CustomerId);
-        if (Customer.role !== "manager") {
-            return res.status(403).json({ msg: "Not authorized" });
-        }
 
         const booking = await BookingList.findById(bookingId);
         if (!booking) {
@@ -172,56 +187,13 @@ exports.updateBookingStatus = async (req, res) => {
         booking.status = status;
         await booking.save();
 
-        // Update booking progress based on status
-        const progress = await BookingProgress.findOne({ booking: bookingId });
-
-        if (status === "confirmed") {
-            // Update to confirmation step
-            progress.steps[1].status = "completed";
-            progress.steps[1].completedAt = Date.now();
-            progress.steps[2].status = "in-progress";
-            progress.currentStep = 2;
-        } else if (status === "completed") {
-            // Complete all steps
-            progress.steps.forEach((step, index) => {
-                step.status = "completed";
-                if (!step.completedAt) {
-                    step.completedAt = Date.now();
-                }
-            });
-            progress.currentStep = progress.steps.length - 1;
-            progress.isCompleted = true;
-        } else if (status === "canceled") {
-            progress.isCompleted = true;
-        }
-
-        await progress.save();
-
-        // Add to history
-        const history = new BookingHistory({
-            booking: bookingId,
-            action: "update_status",
-            description: `Booking status updated from ${previousStatus} to ${status}`,
-            performedBy: CustomerId,
-            previousStatus,
-            newStatus: status
-        });
-
-        await history.save();
-
-        res.json({
-            msg: "Booking status updated",
-            booking,
-            progress
-        });
-
+        res.json({ msg: "Booking status updated", previousStatus, newStatus: status, booking });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ msg: "Server error" });
+        console.error("Error updating booking status:", err);
+        res.status(500).json({ msg: "Failed to update booking status", error: err.message });
     }
 };
 
-// Cancel a booking (Customer can cancel their own booking)
 exports.cancelBooking = async (req, res) => {
     try {
         const CustomerId = req.Customer.id;
@@ -233,13 +205,11 @@ exports.cancelBooking = async (req, res) => {
             return res.status(404).json({ msg: "Booking not found" });
         }
 
-        // Make sure Customer owns the booking or is a manager
         const Customer = await Customer.findById(CustomerId);
         if (booking.Customer.toString() !== CustomerId && Customer.role !== "manager") {
             return res.status(403).json({ msg: "Not authorized" });
         }
 
-        // Check if booking can be canceled
         if (booking.status === "completed") {
             return res.status(400).json({ msg: "Cannot cancel a completed booking" });
         }
@@ -248,14 +218,12 @@ exports.cancelBooking = async (req, res) => {
         booking.status = "canceled";
         await booking.save();
 
-        // Update progress
         const progress = await BookingProgress.findOne({ booking: bookingId });
         if (progress) {
             progress.isCompleted = true;
             await progress.save();
         }
 
-        // Add to history
         const history = new BookingHistory({
             booking: bookingId,
             action: "cancel",
@@ -278,12 +246,10 @@ exports.cancelBooking = async (req, res) => {
     }
 };
 
-// Get all bookings (admin/manager only)
 exports.getAllBookings = async (req, res) => {
     try {
         const CustomerId = req.Customer.id;
 
-        // Verify Customer is a manager
         const Customer = await Customer.findById(CustomerId);
         if (Customer.role !== "manager") {
             return res.status(403).json({ msg: "Not authorized" });
@@ -300,7 +266,6 @@ exports.getAllBookings = async (req, res) => {
     }
 };
 
-// Add notes to a booking
 exports.addBookingNote = async (req, res) => {
     try {
         const CustomerId = req.Customer.id;
@@ -313,7 +278,6 @@ exports.addBookingNote = async (req, res) => {
             return res.status(404).json({ msg: "Booking not found" });
         }
 
-        // Make sure Customer owns the booking or is a manager
         const Customer = await Customer.findById(CustomerId);
         if (booking.Customer.toString() !== CustomerId && Customer.role !== "manager") {
             return res.status(403).json({ msg: "Not authorized" });
@@ -322,7 +286,6 @@ exports.addBookingNote = async (req, res) => {
         booking.notes = notes;
         await booking.save();
 
-        // Add to history
         const history = new BookingHistory({
             booking: bookingId,
             action: "update_notes",
@@ -343,7 +306,6 @@ exports.addBookingNote = async (req, res) => {
     }
 };
 
-// Get available time slots for a specific date and service
 exports.getAvailableTimeSlots = async (req, res) => {
     try {
         const { serviceId, date } = req.query;
@@ -352,10 +314,8 @@ exports.getAvailableTimeSlots = async (req, res) => {
             return res.status(400).json({ msg: "Service ID and date are required" });
         }
 
-        // Get the service details
         let service = await ProductService.findById(serviceId);
 
-        // If service not found by ID, try to find by name for studio packages
         if (!service) {
             const packageNames = ['Package A', 'Package B', 'Package C', 'Package D'];
             service = await ProductService.findOne({
@@ -367,22 +327,15 @@ exports.getAvailableTimeSlots = async (req, res) => {
             return res.status(404).json({ msg: "Service not found" });
         }
 
-        // Ensure studio packages have the correct category
         let serviceCategory = service.category;
         if (['Package A', 'Package B', 'Package C', 'Package D'].includes(service.name)) {
             serviceCategory = 'studio';
         }
 
-        console.log('Service found:', service.name, 'Category:', serviceCategory);
-
-        // Parse the requested date
         const requestedDate = new Date(date);
-        requestedDate.setHours(0, 0, 0, 0); // Normalize to start of day
+        requestedDate.setHours(0, 0, 0, 0);
 
-        // Special handling for studio category
         if (serviceCategory?.toLowerCase() === 'studio') {
-            console.log('Processing studio service - generating 15-minute slots');
-            // Check if date is within the allowed range for studio services (Nov 22-27, 2025)
             const studioStartDate = new Date('2025-11-22');
             const studioEndDate = new Date('2025-11-27');
             studioStartDate.setHours(0, 0, 0, 0);
@@ -395,10 +348,9 @@ exports.getAvailableTimeSlots = async (req, res) => {
                 });
             }
 
-            // Generate all time slots for studio services (15-minute intervals from 8:00 AM to 7:00 PM)
             const allSlots = [];
-            const startHour = 8; // 8:00 AM
-            const endHour = 19; // 7:00 PM
+            const startHour = 8;
+            const endHour = 19;
 
             for (let hour = startHour; hour < endHour; hour++) {
                 for (let minute = 0; minute < 60; minute += 15) {
@@ -407,10 +359,6 @@ exports.getAvailableTimeSlots = async (req, res) => {
                 }
             }
 
-            console.log('Generated', allSlots.length, '15-minute slots for studio service');
-            console.log('First few slots:', allSlots.slice(0, 5));
-
-            // Get all bookings for this date and category
             const startOfDay = new Date(requestedDate);
             const endOfDay = new Date(requestedDate);
             endOfDay.setHours(23, 59, 59, 999);
@@ -420,7 +368,6 @@ exports.getAvailableTimeSlots = async (req, res) => {
                 'serviceDetails.category': 'studio'
             });
 
-            // Count bookings per time slot
             const bookingsPerSlot = {};
             allSlots.forEach(slot => {
                 bookingsPerSlot[slot] = 0;
@@ -432,13 +379,9 @@ exports.getAvailableTimeSlots = async (req, res) => {
                 }
             });
 
-            // Filter out fully booked slots (3 or more bookings)
-            const maxCapacity = 3; // 3 studios available
+            const maxCapacity = 3;
             const availableSlots = allSlots.filter(slot => bookingsPerSlot[slot] < maxCapacity);
 
-            console.log('Available slots:', availableSlots.length);
-
-            // Return available slots
             return res.json({
                 availableSlots,
                 message: availableSlots.length > 0 ?
@@ -446,12 +389,7 @@ exports.getAvailableTimeSlots = async (req, res) => {
                     "No available time slots for the selected date"
             });
         } else {
-            console.log('Processing non-studio service - using default hourly slots');
-            // For other service categories, use their standard availability
-            // Generate default time slots or use service-specific slots
             const availableSlots = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"];
-
-            // In a real app, you would also check these against bookings
 
             return res.json({
                 availableSlots,

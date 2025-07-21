@@ -1,3 +1,6 @@
+// client/src/components/ShoppingCart.jsx
+// ShoppingCart component for displaying the customer's shopping cart with items, total price, and checkout options
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -8,6 +11,7 @@ const ShoppingCart = () => {
     const navigate = useNavigate();
     const { cart, cartOpen, removeFromCart, getCartTotal, clearCart, toggleCart } = useCart();
     const { isAuthenticated } = useAuth();
+    console.log('ShoppingCart render - cartOpen:', cartOpen, 'cart:', cart);
 
     const handleCheckout = () => {
         if (isAuthenticated) {

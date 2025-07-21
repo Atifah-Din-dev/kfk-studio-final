@@ -1,4 +1,5 @@
-/* Service Details Page Styles - Minimalist Black & White Theme */
+/* ServiceDetailsPage.css */
+/* Styles for the Service Details Page, including layout, service information, and responsive design. */
 
 .service-details-container {
     padding: 3rem 2rem;
@@ -185,6 +186,55 @@
     color: #000000;
 }
 
+/* AR Section Styles */
+.service-ar-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.service-ar-section h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 0.8rem 0;
+    color: #212121;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.service-ar-section p {
+    line-height: 1.7;
+    color: #424242;
+    margin: 0 0 1rem 0;
+    font-size: 0.95rem;
+}
+
+.ar-view-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.ar-view-btn:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
 .back-btn {
     padding: 10px 20px;
     background-color: #ffffff;
@@ -248,6 +298,55 @@
     justify-content: center;
     z-index: 1000;
     padding: 1rem;
+}
+
+/* Zoom Button Styles for Frame Services */
+.service-zoom-section {
+    margin: 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.zoom-btn {
+    background: #212121;
+    color: #ffffff;
+    border: 2px solid #212121;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.zoom-btn:hover {
+    background: #ffffff;
+    color: #212121;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.zoom-btn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .service-zoom-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .zoom-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 1rem;
+    }
 }
 
 /* Responsive Styles */

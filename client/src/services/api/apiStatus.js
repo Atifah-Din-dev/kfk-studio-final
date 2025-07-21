@@ -14,7 +14,7 @@ const apiStatus = {
             // By using axios directly instead of apiClient, we can bypass the baseURL
             const axios = require('axios');
             // await axios.get('http://localhost:5000/api'); // My computer's localhost
-            await axios.get('http://192.168.3.143:5000/api'); // UTM IP address
+            await axios.get('http://10.215.107.23:5000/api'); // UTM IP address
             // await axios.get('http://192.168.50.212:5000/api'); // Rumah Nad IP address
 
             return true;

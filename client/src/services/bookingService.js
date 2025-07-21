@@ -1,37 +1,36 @@
+// client/src/services/bookingService.js
+// Service for managing booking operations, including fetching services, creating bookings, and managing customer bookings
+
 import apiClient from './api/apiClient';
 
 const bookingService = {
-    // Get available services
     getServices: async () => {
         try {
-            const response = await apiClient.get('/api/services');
+            const response = await apiClient.get('/services');
             return response.data;
         } catch (error) {
             throw error.response ? error.response.data : error.message;
         }
     },
 
-    // Create a new booking
     createBooking: async (bookingData) => {
         try {
-            const response = await apiClient.post('/api/bookings', bookingData);
+            const response = await apiClient.post('/bookings', bookingData);
             return response.data;
         } catch (error) {
             throw error.response ? error.response.data : error.message;
         }
     },
 
-    // Get Customer's bookings
     getCustomerBookings: async () => {
         try {
-            const response = await apiClient.get('/api/bookings/Customer');
+            const response = await apiClient.get('/bookings/Customer');
             return response.data;
         } catch (error) {
             throw error.response ? error.response.data : error.message;
         }
     },
 
-    // Get booking by ID
     getBookingById: async (bookingId) => {
         try {
             const response = await apiClient.get(`/api/bookings/${bookingId}`);
@@ -41,7 +40,6 @@ const bookingService = {
         }
     },
 
-    // Cancel booking
     cancelBooking: async (bookingId) => {
         try {
             const response = await apiClient.put(`/api/bookings/${bookingId}/cancel`);
@@ -51,7 +49,6 @@ const bookingService = {
         }
     },
 
-    // Update booking
     updateBooking: async (bookingId, updateData) => {
         try {
             const response = await apiClient.put(`/api/bookings/${bookingId}`, updateData);
@@ -61,10 +58,9 @@ const bookingService = {
         }
     },
 
-    // Get available time slots for a specific date and service
     getAvailableTimeSlots: async (serviceId, date) => {
         try {
-            const response = await apiClient.get('/api/bookings/available-slots', {
+            const response = await apiClient.get('/bookings/available-slots', {
                 params: { serviceId, date }
             });
             return response.data;
@@ -73,7 +69,6 @@ const bookingService = {
         }
     },
 
-    // Submit feedback for a booking
     submitFeedback: async (bookingId, feedbackData) => {
         try {
             const response = await apiClient.post(`/api/bookings/${bookingId}/feedback`, feedbackData);
@@ -83,7 +78,6 @@ const bookingService = {
         }
     },
 
-    // Check if a Customer can book (limits, restrictions, etc.)
     checkBookingEligibility: async (serviceId) => {
         try {
             const response = await apiClient.get('/api/bookings/eligibility', {

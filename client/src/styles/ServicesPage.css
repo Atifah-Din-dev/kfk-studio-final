@@ -1,4 +1,5 @@
-/* Services Page Styles */
+/* ServicesPage.css */
+/* Styles for the Services Page, including layout, service cards, and responsive design. */
 
 .services-container {
     padding: 2rem;
@@ -307,6 +308,12 @@
     color: #333;
 }
 
+.service-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
 .book-now-btn {
     display: inline-block;
     padding: 0.5rem 1rem;
@@ -315,7 +322,36 @@
     border-radius: 4px;
     text-decoration: none;
     font-weight: 500;
+    border: none;
+    cursor: pointer;
     transition: background-color 0.2s ease;
+}
+
+.book-now-btn:hover {
+    background-color: #000000;
+}
+
+/* Zoom Button Styles for Service Cards */
+.zoom-btn-small {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    background: #212121;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 50px;
+    height: 35px;
+}
+
+.zoom-btn-small:hover {
+    background: #333333;
+    transform: translateY(-1px);
 }
 
 .book-now-btn:hover {

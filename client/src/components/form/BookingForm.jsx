@@ -1,3 +1,6 @@
+// client/src/components/form/BookingForm.jsx
+// BookingForm component for selecting service booking details like date, time, and options
+
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
@@ -18,21 +21,16 @@ const BookingForm = ({ service, onClose }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    // Set minimum date to today
     const today = new Date().toISOString().split("T")[0];
 
-    // Special studio availability dates (Nov 22-27, 2025)
     const studioStartDate = new Date('2025-11-22');
     const studioEndDate = new Date('2025-11-27');
 
-    // Check if the service belongs to the studio category
     const isStudioCategory = service.category?.toLowerCase() === 'studio';
 
-    // Get available days from service
     const availableDays = service.availableDays || ["monday", "tuesday", "wednesday", "thursday", "friday"];
 
     useEffect(() => {
-        // Generate available dates for studio category
         if (isStudioCategory) {
             const dates = [];
             const currentDate = new Date(studioStartDate);
@@ -56,20 +54,16 @@ const BookingForm = ({ service, onClose }) => {
         try {
             setLoading(true);
 
-            // Call the API endpoint to get available time slots
             const response = await bookingService.getAvailableTimeSlots(
                 service._id,
                 bookingDate
             );
 
             if (response && response.availableSlots) {
-                // For studio category, format slots to show duration (15 min)
                 if (isStudioCategory) {
                     const formattedSlots = response.availableSlots.map(slot => {
-                        // Parse the start time
                         const [hours, minutes] = slot.split(':').map(Number);
 
-                        // Calculate end time (15 minutes later)
                         let endHours = hours;
                         let endMinutes = minutes + 15;
 
@@ -78,7 +72,6 @@ const BookingForm = ({ service, onClose }) => {
                             endMinutes -= 60;
                         }
 
-                        // Format with AM/PM
                         const formatTime = (h, m) => {
                             const period = h >= 12 ? 'PM' : 'AM';
                             const displayHour = h === 0 ? 12 : h > 12 ? h - 12 : h;
@@ -94,14 +87,12 @@ const BookingForm = ({ service, onClose }) => {
                     setAvailableTimeSlots(response.availableSlots);
                 }
 
-                // Show any messages from the API as errors if no slots are available
                 if (response.availableSlots.length === 0 && response.message) {
                     setError(response.message);
                 } else {
                     setError("");
                 }
             } else {
-                // Fallback to default slots if API fails or returns no data
                 const defaultTimeSlots = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"];
                 setAvailableTimeSlots(defaultTimeSlots);
             }
@@ -112,7 +103,6 @@ const BookingForm = ({ service, onClose }) => {
             setError("Failed to load available time slots");
             setLoading(false);
 
-            // Fallback to default slots on error
             const defaultTimeSlots = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"];
             setAvailableTimeSlots(defaultTimeSlots);
         }
@@ -148,7 +138,6 @@ const BookingForm = ({ service, onClose }) => {
             return;
         }
 
-        // Check if user is authenticated before adding to cart
         if (!isAuthenticated) {
             setError("Please login to add items to cart");
             setTimeout(() => {
@@ -169,7 +158,6 @@ const BookingForm = ({ service, onClose }) => {
                 .map(option => option.name)
             : [];
 
-        // Extract the start time for studio bookings (remove the "- XX:XX" part)
         let time = bookingTime;
         if (isStudioCategory && bookingTime.includes('-')) {
             time = bookingTime.split('-')[0].trim();
@@ -193,13 +181,10 @@ const BookingForm = ({ service, onClose }) => {
     const isDateAvailable = (dateString) => {
         const date = new Date(dateString);
 
-        // Special handling for studio category
         if (isStudioCategory) {
-            // Check if date falls within the Nov 22-27, 2025 range for studio services
             return date >= studioStartDate && date <= studioEndDate;
         }
 
-        // For other categories, check day of week
         const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
         return availableDays.includes(dayOfWeek);
     };
@@ -219,7 +204,6 @@ const BookingForm = ({ service, onClose }) => {
         }
     };
 
-    // Format date for display in booking summary and date selector
     const formatDate = (date) => {
         if (!date) return "";
         const options = {

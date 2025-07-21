@@ -1,3 +1,6 @@
+// RegisterForm.jsx
+// Form component for customer registration, handling input validation and submission
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";

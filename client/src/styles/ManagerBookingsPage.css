@@ -1,0 +1,150 @@
+/* Manager Bookings Page Styles */
+/* Styles for the Manager Bookings Page, including table layout, booking status, and responsive design. */
+
+/* Manager Bookings Table Styles */
+
+.manager-bookings-container {
+    width: 100%;
+    max-width: 95%;
+    margin: 40px auto;
+    padding: 32px 24px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+    overflow-x: auto;
+    box-sizing: border-box;
+}
+
+/* Table Styling */
+
+/* Basic table styling */
+.manager-bookings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #333;
+    padding: 0 8px;
+    box-sizing: border-box;
+}
+
+/* Header styling */
+/* Table Header - Purple Theme */
+
+/* Table Header - Purple Theme */
+.manager-bookings-table thead th,
+.manager-bookings-table th {
+    background-color: #764ba2;
+    color: #fff;
+    text-align: left;
+    padding: 12px 16px;
+    border: 1px solid #5a378a;
+    font-weight: 700;
+}
+
+/* Body rows */
+.manager-bookings-table tbody tr {
+    border-bottom: 1px solid #ddd;
+}
+
+/* Zebra striping */
+.manager-bookings-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Hover effect on rows */
+.manager-bookings-table tbody tr:hover {
+    background-color: #d1e7dd;
+    cursor: pointer;
+}
+
+/* Cell padding */
+.manager-bookings-table td {
+    padding: 12px 15px;
+}
+
+/* Responsive overflow */
+.table-responsive {
+    overflow-x: auto;
+}
+
+
+
+
+
+
+/* Zebra striping for table rows */
+.manager-bookings-table tbody tr:nth-child(even) {
+    background-color: #f3e9fa;
+}
+
+/* Hover effect for table rows */
+.manager-bookings-table tbody tr:hover {
+    background-color: #e1d0f7;
+    cursor: pointer;
+}
+
+.manager-bookings-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 32px;
+    color: #2c3e50;
+    text-align: center;
+    display: block;
+}
+
+.manager-bookings-status {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.manager-bookings-status.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.manager-bookings-status.completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.manager-bookings-status.cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.manager-bookings-actions button {
+    margin-right: 8px;
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    background: #3498db;
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.manager-bookings-actions button:last-child {
+    margin-right: 0;
+}
+
+.manager-bookings-actions button:hover {
+    background: #217dbb;
+}
+
+.manager-bookings-empty {
+    text-align: center;
+    color: #888;
+    font-size: 1.1rem;
+    margin: 32px 0;
+}
+
+.loading,
+.error {
+    margin: 2rem 0;
+    font-size: 1.2rem;
+    color: #333;
+}

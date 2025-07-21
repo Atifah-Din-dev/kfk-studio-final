@@ -1,3 +1,6 @@
+// server/routes/booking.js
+// Routes for booking operations, including creating, updating, and retrieving bookings
+
 const express = require("express");
 const router = express.Router();
 const {
@@ -11,15 +14,17 @@ const {
     getAvailableTimeSlots
 } = require("../controller/bookingController");
 const auth = require("../middleware/auth");
+const managerAuth = require("../middleware/managerAuth");
 
-// Protected routes - require authentication
 router.post("/", auth, createBooking);
 router.get("/Customer", auth, getCustomerBookings);
 router.get("/all", auth, getAllBookings);
-router.get("/available-slots", getAvailableTimeSlots); // This endpoint doesn't need auth for initial checking
+router.get("/available-slots", getAvailableTimeSlots);
 router.get("/:id", auth, getBookingById);
-router.put("/:id/status", auth, updateBookingStatus);
+router.put("/:id/status", managerAuth, updateBookingStatus);
 router.put("/:id/cancel", auth, cancelBooking);
 router.put("/:id/notes", auth, addBookingNote);
 
 module.exports = router;
+
+

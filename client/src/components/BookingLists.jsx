@@ -1,3 +1,6 @@
+// client/src/components/BookingLists.jsx
+// Component for displaying a list of bookings with options to view, cancel, and filter bookings
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import bookingService from '../services/bookingService';
@@ -35,7 +38,6 @@ const BookingLists = () => {
         try {
             await bookingService.cancelBooking(bookingId);
 
-            // Update the booking status in the UI without refetching
             setBookings(prevBookings =>
                 prevBookings.map(booking =>
                     booking._id === bookingId
@@ -62,7 +64,6 @@ const BookingLists = () => {
         });
     };
 
-    // Filter bookings based on active tab
     const filteredBookings = bookings.filter(booking => {
         if (activeTab === 'upcoming') {
             return ['pending', 'confirmed'].includes(booking.status);
@@ -71,7 +72,7 @@ const BookingLists = () => {
         } else if (activeTab === 'canceled') {
             return booking.status === 'canceled';
         }
-        return true; // 'all' tab
+        return true;
     });
 
     if (loading) {
@@ -102,30 +103,10 @@ const BookingLists = () => {
             <div className="booking-lists-header">
                 <h2>Your Bookings</h2>
                 <div className="booking-tabs">
-                    <button
-                        className={`tab ${activeTab === 'upcoming' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('upcoming')}
-                    >
-                        Upcoming
-                    </button>
-                    <button
-                        className={`tab ${activeTab === 'completed' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('completed')}
-                    >
-                        Completed
-                    </button>
-                    <button
-                        className={`tab ${activeTab === 'canceled' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('canceled')}
-                    >
-                        Canceled
-                    </button>
-                    <button
-                        className={`tab ${activeTab === 'all' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('all')}
-                    >
-                        All
-                    </button>
+                    <button className={`tab ${activeTab === 'upcoming' ? 'active' : ''}`} onClick={() => setActiveTab('upcoming')}>Upcoming</button>
+                    <button className={`tab ${activeTab === 'completed' ? 'active' : ''}`} onClick={() => setActiveTab('completed')}>Completed</button>
+                    <button className={`tab ${activeTab === 'canceled' ? 'active' : ''}`} onClick={() => setActiveTab('canceled')}>Canceled</button>
+                    <button className={`tab ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>All</button>
                 </div>
             </div>
 
@@ -145,98 +126,44 @@ const BookingLists = () => {
                     </Link>
                 </div>
             ) : (
-                <div className="booking-cards">
-                    {filteredBookings.map((booking) => (
-                        <div
-                            key={booking._id}
-                            className={`booking-card ${expandedBooking === booking._id ? 'expanded' : ''}`}
-                        >
-                            <div
-                                className="booking-card-header"
-                                onClick={() => toggleExpand(booking._id)}
-                            >
-                                <div className="booking-service">
-                                    <h3>{booking.serviceDetails?.name || booking.service}</h3>
-                                    <span className={`booking-status ${booking.status}`}>
-                                        {booking.status}
-                                    </span>
-                                </div>
-                                <div className="booking-meta">
-                                    <div className="booking-date">
-                                        {formatDate(booking.date)} at {booking.time}
-                                    </div>
-                                    <div className="booking-expand-icon">
-                                        {expandedBooking === booking._id ? '▼' : '▶'}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="booking-card-details">
-                                <div className="booking-detail-row">
-                                    <span className="detail-label">Booking ID:</span>
-                                    <span className="detail-value">{booking._id}</span>
-                                </div>
-
-                                <div className="booking-detail-row">
-                                    <span className="detail-label">Date & Time:</span>
-                                    <span className="detail-value">
-                                        {formatDate(booking.date)} at {booking.time}
-                                    </span>
-                                </div>
-
-                                {booking.serviceDetails?.options && booking.serviceDetails.options.length > 0 && (
-                                    <div className="booking-detail-row">
-                                        <span className="detail-label">Options:</span>
-                                        <span className="detail-value">
-                                            {booking.serviceDetails.options.join(", ")}
-                                        </span>
-                                    </div>
-                                )}
-
-                                {booking.price && (
-                                    <div className="booking-detail-row">
-                                        <span className="detail-label">Price:</span>
-                                        <span className="detail-value">${booking.price.toFixed(2)}</span>
-                                    </div>
-                                )}
-
-                                {booking.notes && (
-                                    <div className="booking-detail-row">
-                                        <span className="detail-label">Notes:</span>
-                                        <span className="detail-value">{booking.notes}</span>
-                                    </div>
-                                )}
-
-                                <div className="booking-actions">
-                                    <Link
-                                        to={`/booking/confirmation/${booking._id}`}
-                                        className="view-details-btn"
-                                    >
-                                        View Details
-                                    </Link>
-
+                <table className="booking-lists-table">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Service</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Options</th>
+                            <th>Price (RM)</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredBookings.map((booking) => (
+                            <tr key={booking._id}>
+                                <td>{booking._id}</td>
+                                <td>{booking.serviceDetails?.name || booking.service}</td>
+                                <td>{formatDate(booking.date)}</td>
+                                <td>{booking.time}</td>
+                                <td>{booking.serviceDetails?.options ? booking.serviceDetails.options.join(", ") : '-'}</td>
+                                <td>{booking.price ? booking.price.toFixed(2) : '-'}</td>
+                                <td className={`booking-status ${booking.status}`}>{booking.status}</td>
+                                <td>{booking.notes || '-'}</td>
+                                <td>
+                                    <Link to={`/booking/confirmation/${booking._id}`} className="view-details-btn">View</Link>
                                     {['pending', 'confirmed'].includes(booking.status) && (
-                                        <button
-                                            onClick={() => handleCancelBooking(booking._id)}
-                                            className="cancel-booking-btn"
-                                        >
-                                            Cancel Booking
-                                        </button>
+                                        <button onClick={() => handleCancelBooking(booking._id)} className="cancel-booking-btn">Cancel</button>
                                     )}
-
                                     {booking.status === 'completed' && (
-                                        <Link
-                                            to={`/feedback/${booking._id}`}
-                                            className="leave-feedback-btn"
-                                        >
-                                            Leave Feedback
-                                        </Link>
+                                        <Link to={`/feedback/${booking._id}`} className="leave-feedback-btn">Feedback</Link>
                                     )}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             )}
         </div>
     );

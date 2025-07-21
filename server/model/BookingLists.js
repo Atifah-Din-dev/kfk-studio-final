@@ -1,3 +1,6 @@
+// server/model/BookingLists.js
+// Model for Booking Lists, defining schema and structure for booking data in the database
+
 const mongoose = require("mongoose");
 
 const bookingListSchema = new mongoose.Schema({
@@ -25,6 +28,18 @@ const bookingListSchema = new mongoose.Schema({
     price: {
         type: Number,
         required: true,
+    },
+    totalPrice: {
+        type: Number,
+    },
+    orderId: {
+        type: String,
+    },
+    customerInfo: {
+        name: String,
+        email: String,
+        phone: String,
+        address: String
     },
     status: {
         type: String,

@@ -1,0 +1,48 @@
+// Script to fix service image URLs in MongoDB
+// Usage: node fixServiceImages.js
+
+const mongoose = require('mongoose');
+const fs = require('fs');
+const path = require('path');
+const ProductServices = require('./model/ProductServices');
+
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/kfkstudio';
+const UPLOADS_DIR = path.join(__dirname, 'uploads', 'services');
+const PUBLIC_URL_BASE = 'http://10.215.107.23:5000/uploads/services/';
+const DEFAULT_IMAGE_URL = 'https://via.placeholder.com/300x200?text=No+Image';
+
+function isLocalPath(image) {
+    if (!image) return false;
+    return image.startsWith('file:///') || image.match(/^[A-Za-z]:\\/);
+}
+
+async function main() {
+    await mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    const services = await ProductServices.find({});
+    let updated = 0;
+
+    for (const service of services) {
+        if (isLocalPath(service.image)) {
+            // Try to get filename from local path
+            let filename = path.basename(service.image.replace('file:///', ''));
+            let filePath = path.join(UPLOADS_DIR, filename);
+            let newImageUrl;
+            if (fs.existsSync(filePath)) {
+                newImageUrl = PUBLIC_URL_BASE + filename;
+            } else {
+                newImageUrl = DEFAULT_IMAGE_URL;
+            }
+            service.image = newImageUrl;
+            await service.save();
+            updated++;
+            console.log(`Updated service ${service._id}: ${newImageUrl}`);
+        }
+    }
+    console.log(`Done. Updated ${updated} services.`);
+    mongoose.disconnect();
+}
+
+main().catch(err => {
+    console.error(err);
+    mongoose.disconnect();
+});

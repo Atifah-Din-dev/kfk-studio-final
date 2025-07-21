@@ -1,3 +1,6 @@
+// server/model/ProductServices.js
+// Model for Product Services, defining schema and structure for product service data in the database
+
 const mongoose = require("mongoose");
 
 const productServicesSchema = new mongoose.Schema({
@@ -19,7 +22,7 @@ const productServicesSchema = new mongoose.Schema({
         required: true,
     },
     duration: {
-        type: Number, // Duration in minutes
+        type: Number,
         required: true,
     },
     image: {
@@ -38,10 +41,14 @@ const productServicesSchema = new mongoose.Schema({
             default: 0,
         },
         additionalDuration: {
-            type: Number, // Additional duration in minutes
+            type: Number,
             default: 0,
         }
     }],
+    webArUrl: {
+        type: String,
+        trim: true,
+    },
     isActive: {
         type: Boolean,
         default: true,
@@ -65,7 +72,6 @@ const productServicesSchema = new mongoose.Schema({
     }
 });
 
-// Update the updatedAt field before saving
 productServicesSchema.pre("save", function (next) {
     this.updatedAt = Date.now();
     next();

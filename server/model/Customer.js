@@ -1,3 +1,6 @@
+// Customer.js
+// Model for Customer entity, defining schema and structure for customer data in the database
+
 const mongoose = require("mongoose");
 
 const customerSchema = new mongoose.Schema({

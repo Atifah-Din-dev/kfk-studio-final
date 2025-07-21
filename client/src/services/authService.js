@@ -1,38 +1,42 @@
+// authService.js
+// Service for managing customer authentication and related operations
+
 import apiClient from "./api/apiClient";
 import apiStatus from "./api/apiStatus";
 
 const AUTH_ENDPOINT = "/auth";
 
-// Add a function to check API connectivity before making auth requests
 const checkApiAvailability = async () => {
     try {
         const isReachable = await apiStatus.isServerReachable();
         if (!isReachable) {
             console.warn("API server is not reachable. Proceeding with request anyway.");
-            // Not throwing an error, just warning
         }
         return isReachable;
     } catch (error) {
         console.error("Error checking API availability:", error);
-        return false; // Continue with the request even if check fails
+        return false;
     }
 };
 
 const login = async (CustomerData, rememberMe = false) => {
-    // Check API availability but don't block the login attempt
     await checkApiAvailability();
 
     try {
         const res = await apiClient.post(`${AUTH_ENDPOINT}/login`, CustomerData);
 
-        // Store Customer data in localStorage or sessionStorage based on remember me option
+        const dataToStore = {
+            Customer: res.data.customer,
+            token: res.data.token,
+        };
+
         if (rememberMe) {
-            localStorage.setItem("Customer", JSON.stringify(res.data));
+            localStorage.setItem("Customer", JSON.stringify(dataToStore));
         } else {
-            sessionStorage.setItem("Customer", JSON.stringify(res.data));
+            sessionStorage.setItem("Customer", JSON.stringify(dataToStore));
         }
 
-        return res.data;
+        return dataToStore;
     } catch (error) {
         console.error("Login error:", error);
         throw error;
@@ -105,8 +109,12 @@ const getCustomer = () => {
     const CustomerFromLocal = localStorage.getItem("Customer");
     const CustomerFromSession = sessionStorage.getItem("Customer");
 
-    return CustomerFromLocal ? JSON.parse(CustomerFromLocal) :
-        CustomerFromSession ? JSON.parse(CustomerFromSession) : null;
+    if (CustomerFromLocal) {
+        return JSON.parse(CustomerFromLocal);
+    } else if (CustomerFromSession) {
+        return JSON.parse(CustomerFromSession);
+    }
+    return null;
 };
 
 const setCustomerData = (CustomerData) => {

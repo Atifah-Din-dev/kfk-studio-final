@@ -1,22 +1,26 @@
+// AuthContext.js
+// Context for managing authentication state and user sessions/logout
+
 import { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import authService from '../services/authService';
+import managerAuthService from '../services/managerAuthService';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [Customer, setCustomer] = useState(null);
+    const [Manager, setManager] = useState(null);
     const [loading, setLoading] = useState(true);
     const [sessionTimeout, setSessionTimeout] = useState(null);
     const [inactivityTimer, setInactivityTimer] = useState(null);
 
     // Load Customer data when component mounts
     useEffect(() => {
-        const loadCustomer = async () => {
+        const loadCustomerOrManager = async () => {
             try {
                 // Check if Customer session is valid
                 if (authService.checkSessionValidity()) {
                     const CustomerData = authService.getCustomer();
-                    // Always wrap under Customer key
                     setCustomer(CustomerData);
                     try {
                         const profileData = await authService.getCustomerProfile();
@@ -25,6 +29,9 @@ export const AuthProvider = ({ children }) => {
                         console.log("Could not fetch updated profile");
                     }
                     setupSessionMonitoring(CustomerData);
+                } else if (managerAuthService.checkSessionValidity()) {
+                    const ManagerData = managerAuthService.getManager();
+                    setManager(ManagerData);
                 }
             } catch (error) {
                 console.error("Auth initialization error:", error);
@@ -33,7 +40,7 @@ export const AuthProvider = ({ children }) => {
             }
         };
 
-        loadCustomer();
+        loadCustomerOrManager();
 
         // Cleanup on unmount
         return () => {
@@ -185,17 +192,24 @@ export const AuthProvider = ({ children }) => {
     };
 
     const isAuthenticated = useCallback(() => {
-        return !!Customer && authService.checkSessionValidity();
-    }, [Customer]);
+        // Check for either Customer or Manager session validity
+        if (Customer && authService.checkSessionValidity()) return true;
+        if (Manager && managerAuthService.checkSessionValidity()) return true;
+        return false;
+    }, [Customer, Manager]);
 
     const hasRole = useCallback((role) => {
-        return Customer?.Customer?.role === role;
-    }, [Customer]);
+        // Check role for Customer or Manager
+        if (Customer?.Customer?.role === role) return true;
+        if (Manager?.Manager?.role === role || role === 'manager') return true;
+        return false;
+    }, [Customer, Manager]);
 
     return (
         <AuthContext.Provider
             value={{
                 Customer,
+                Manager,
                 loading,
                 login,
                 register,

@@ -1,3 +1,6 @@
+// server/middleware/auth.js
+// Middleware for authenticating customer requests using JWT
+
 const jwt = require("jsonwebtoken");
 const Customer = require("../model/Customer");
 
@@ -14,15 +17,15 @@ module.exports = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         // Find Customer by id and update last active timestamp
-        const Customer = await Customer.findById(decoded.id);
+        const customer = await Customer.findById(decoded.id);
 
-        if (!Customer) {
+        if (!customer) {
             return res.status(401).json({ msg: "Customer not found" });
         }
 
         // Update last active timestamp
-        Customer.lastActive = Date.now();
-        await Customer.save();
+        customer.lastActive = Date.now();
+        await customer.save();
 
         // Add Customer id to request object
         req.Customer = { id: decoded.id };

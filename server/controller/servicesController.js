@@ -1,18 +1,64 @@
+// server/controller/servicesController.js
+// Controller for managing product services, including CRUD operations and image uploads
+
 const ProductServices = require('../model/ProductServices');
+
+exports.uploadServiceImage = (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: 'No image file uploaded' });
+    }
+    const imageUrl = `/uploads/services/${req.file.filename}`;
+    res.json({ imageUrl });
+};
+
+exports.createService = async (req, res) => {
+    try {
+        const newService = new ProductServices(req.body);
+        await newService.save();
+        res.status(201).json(newService);
+    } catch (error) {
+        console.error('Error creating service:', error);
+        res.status(500).json({ message: 'Failed to create service', error: error.message });
+    }
+};
+
+exports.updateService = async (req, res) => {
+    try {
+        const serviceId = req.params.id;
+        const updateData = req.body;
+        const updatedService = await ProductServices.findByIdAndUpdate(serviceId, updateData, { new: true });
+        if (!updatedService) {
+            return res.status(404).json({ message: 'Service not found' });
+        }
+        res.json(updatedService);
+    } catch (error) {
+        console.error('Error updating service:', error);
+        res.status(500).json({ message: 'Failed to update service', error: error.message });
+    }
+};
+
+exports.deleteService = async (req, res) => {
+    try {
+        const serviceId = req.params.id;
+        const deletedService = await ProductServices.findByIdAndDelete(serviceId);
+        if (!deletedService) {
+            return res.status(404).json({ message: 'Service not found' });
+        }
+        res.json({ message: 'Service deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting service:', error);
+        res.status(500).json({ message: 'Failed to delete service', error: error.message });
+    }
+};
 
 exports.getAllServices = async (req, res) => {
     try {
         console.log('GET /api/services - Fetching all services');
-
-        // Try to get services from the database
         let services = await ProductServices.find();
         console.log(`Found ${services.length} services in database`);
-
-        // If no services in database yet, return dummy data
         if (services.length === 0) {
             console.log('No services found in database, returning dummy data');
             services = [
-                // Add Package A, B, C, D from Landing Page first
                 {
                     _id: 'package_a',
                     name: 'Package A',
@@ -57,7 +103,6 @@ exports.getAllServices = async (req, res) => {
                     image: 'https://via.placeholder.com/300x200?text=Package+D',
                     isPackage: true
                 },
-                // Original services after packages
                 {
                     _id: '1',
                     name: 'Portrait Photography',
@@ -65,7 +110,8 @@ exports.getAllServices = async (req, res) => {
                     price: 150,
                     priceFormatted: 'RM150',
                     duration: '1 hour',
-                    image: 'https://via.placeholder.com/300x200?text=Portrait+Photography'
+                    image: 'https://via.placeholder.com/300x200?text=Portrait+Photography',
+                    category: 'portrait'
                 },
                 {
                     _id: '2',
@@ -74,7 +120,8 @@ exports.getAllServices = async (req, res) => {
                     price: 1200,
                     priceFormatted: 'RM1,200',
                     duration: '8 hours',
-                    image: 'https://via.placeholder.com/300x200?text=Wedding+Photography'
+                    image: 'https://via.placeholder.com/300x200?text=Wedding+Photography',
+                    category: 'event'
                 },
                 {
                     _id: '3',
@@ -83,7 +130,8 @@ exports.getAllServices = async (req, res) => {
                     price: 500,
                     priceFormatted: 'RM500',
                     duration: '3 hours',
-                    image: 'https://via.placeholder.com/300x200?text=Commercial+Photography'
+                    image: 'https://via.placeholder.com/300x200?text=Commercial+Photography',
+                    category: 'portrait'
                 },
                 {
                     _id: '4',
@@ -92,21 +140,70 @@ exports.getAllServices = async (req, res) => {
                     price: 350,
                     priceFormatted: 'RM350',
                     duration: '2 hours',
-                    image: 'https://via.placeholder.com/300x200?text=Event+Photography'
+                    image: 'https://via.placeholder.com/300x200?text=Event+Photography',
+                    category: 'event'
+                },
+                {
+                    _id: 'horizontal_frame',
+                    name: 'Horizontal Frame',
+                    description: 'Professional horizontal frame photography for portraits and group photos.',
+                    category: 'frame',
+                    price: 80,
+                    priceFormatted: 'RM80',
+                    duration: 30,
+                    image: 'https://via.placeholder.com/300x200?text=Horizontal+Frame',
+                    webArUrl: 'https://mywebar.com/p/Project_0_fd100hw4ji?_ga=2.67941140.427142656.1748409355-402061734.1748409305',
+                    availableDays: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"],
+                    options: [
+                        {
+                            _id: 'hf_digital_copy',
+                            name: 'Digital Copy',
+                            description: 'High-resolution digital copy of all photos',
+                            additionalPrice: 20
+                        },
+                        {
+                            _id: 'hf_print_package',
+                            name: 'Print Package',
+                            description: 'Professional prints in various sizes',
+                            additionalPrice: 35
+                        }
+                    ]
+                },
+                {
+                    _id: 'vertical_frame',
+                    name: 'Vertical Frame',
+                    description: 'Professional vertical frame photography perfect for individual portraits.',
+                    category: 'frame',
+                    price: 75,
+                    priceFormatted: 'RM75',
+                    duration: 30,
+                    image: 'https://via.placeholder.com/300x200?text=Vertical+Frame',
+                    webArUrl: 'https://mywebar.com/p/Project_0_fd100hw4ji?_ga=2.67941140.427142656.1748409355-402061734.1748409305',
+                    availableDays: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"],
+                    options: [
+                        {
+                            _id: 'vf_digital_copy',
+                            name: 'Digital Copy',
+                            description: 'High-resolution digital copy of all photos',
+                            additionalPrice: 20
+                        },
+                        {
+                            _id: 'vf_retouching',
+                            name: 'Professional Retouching',
+                            description: 'Advanced photo retouching and enhancement',
+                            additionalPrice: 25
+                        }
+                    ]
                 }
             ];
-
-            // Optionally save these dummy services to the database
             try {
                 console.log('Attempting to save dummy services to database');
                 await ProductServices.insertMany(services);
                 console.log('Successfully saved dummy services to database');
             } catch (saveErr) {
                 console.error('Error saving dummy services to database:', saveErr);
-                // Continue even if saving fails
             }
         }
-
         console.log('Sending services response');
         res.json(services);
     } catch (err) {
@@ -118,22 +215,15 @@ exports.getAllServices = async (req, res) => {
 exports.getServiceById = async (req, res) => {
     try {
         let service = await ProductServices.findById(req.params.id);
-
-        // If service not found in database, check if it's one of our studio packages
         if (!service) {
-            // Try to find by name if it's a studio package
             const packageNames = ['Package A', 'Package B', 'Package C', 'Package D'];
             service = await ProductServices.findOne({
                 name: { $in: packageNames }
             });
-
-            // If still not found, return 404
             if (!service) {
                 return res.status(404).json({ message: 'Service not found' });
             }
         }
-
-        // Ensure studio packages have the correct category and duration
         if (['Package A', 'Package B', 'Package C', 'Package D'].includes(service.name)) {
             service = {
                 ...service.toObject(),
@@ -141,7 +231,6 @@ exports.getServiceById = async (req, res) => {
                 duration: 15
             };
         }
-
         res.json(service);
     } catch (err) {
         console.error('Error fetching service by ID:', err);

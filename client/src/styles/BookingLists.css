@@ -1,7 +1,110 @@
+/* BookingLists.css */
+/* Styles for the booking lists component, including table styles, buttons, and responsive design.*/
+
 .booking-lists-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 1rem;
+    .booking-lists-table {
+        width: 100%;
+        min-width: 900px;
+        max-width: 100%;
+        table-layout: auto;
+        border-collapse: collapse;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        color: #333;
+        margin-bottom: 40px;
+    }
+
+    .booking-lists-table thead th,
+    .booking-lists-table th {
+        background-color: #764ba2;
+        color: #fff;
+        text-align: left;
+        padding: 12px 16px;
+        border: 1px solid #5a378a;
+        font-weight: 700;
+    }
+
+    .booking-lists-table tbody tr {
+        border-bottom: 1px solid #ddd;
+    }
+
+    .booking-lists-table tbody tr:nth-child(even) {
+        background-color: #f3e9fa;
+    }
+
+    .booking-lists-table tbody tr:hover {
+        background-color: #e1d0f7;
+        cursor: pointer;
+    }
+
+    .booking-lists-table td {
+        padding: 12px 15px;
+    }
+
+    .booking-status {
+        font-weight: 600;
+        border-radius: 12px;
+        padding: 4px 12px;
+        color: #fff;
+        background: #764ba2;
+        font-size: 0.95rem;
+        text-transform: capitalize;
+        letter-spacing: 0.5px;
+    }
+
+    .booking-status.pending {
+        background: #f7b731;
+    }
+
+    .booking-status.confirmed {
+        background: #4a6cf7;
+    }
+
+    .booking-status.completed {
+        background: #2ecc71;
+    }
+
+    .booking-status.canceled {
+        background: #e74c3c;
+    }
+
+    .view-details-btn,
+    .cancel-booking-btn,
+    .leave-feedback-btn {
+        margin-right: 8px;
+        padding: 6px 14px;
+        border: none;
+        border-radius: 6px;
+        background: #9d72c7;
+        color: #fff;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+        font-size: 0.95rem;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .view-details-btn:last-child,
+    .cancel-booking-btn:last-child,
+    .leave-feedback-btn:last-child {
+        margin-right: 0;
+    }
+
+    .view-details-btn:hover,
+    .cancel-booking-btn:hover,
+    .leave-feedback-btn:hover {
+        background: #5a378a;
+    }
+
+    max-width: 98vw;
+    margin: 32px auto;
+    padding: 0 0 32px 0;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+    overflow-x: auto;
+    box-sizing: border-box;
 }
 
 .booking-lists-header {

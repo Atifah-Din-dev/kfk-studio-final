@@ -9,27 +9,38 @@ export const CartProvider = ({ children }) => {
     const [cartOpen, setCartOpen] = useState(false);
 
     // Load cart from localStorage on initial render
-    useEffect(() => {
-        const savedCart = localStorage.getItem('kfkCart');
-        if (savedCart) {
-            try {
-                setCart(JSON.parse(savedCart));
-            } catch (error) {
-                console.error('Error parsing cart from localStorage:', error);
-                setCart([]);
-            }
-        }
-    }, []);
+useEffect(() => {
+  const savedCart = localStorage.getItem('kfkCart');
+  console.log('Loading cart from localStorage:', savedCart);
+  if (savedCart) {
+    try {
+      const parsedCart = JSON.parse(savedCart);
+      console.log('Parsed cart:', parsedCart);
+      setCart(parsedCart);
+    } catch (error) {
+      console.error('Error parsing cart from localStorage:', error);
+      setCart([]);
+    }
+  }
+}, []);
+
+
+
+
+    
+;
 
     // Save cart to localStorage whenever it changes
     useEffect(() => {
         localStorage.setItem('kfkCart', JSON.stringify(cart));
     }, [cart]);
 
-    const addToCart = (item) => {
-        setCart(prevCart => [...prevCart, { ...item, id: Date.now() }]);
-        setCartOpen(true);
-    };
+const addToCart = (item) => {
+    const id = `${item.serviceId}-${item.bookingDate}-${item.bookingTime}`;
+    setCart(prevCart => [...prevCart, { ...item, id }]);
+    setCartOpen(true);
+};
+
 
     const removeFromCart = (itemId) => {
         setCart(prevCart => prevCart.filter(item => item.id !== itemId));
@@ -48,8 +59,12 @@ export const CartProvider = ({ children }) => {
     };
 
     const toggleCart = () => {
-        setCartOpen(!cartOpen);
-    };
+  setCartOpen(prev => {
+    console.log('Cart open state toggled to:', !prev);
+    return !prev;
+  });
+};
+
 
     return (
         <CartContext.Provider value={{
